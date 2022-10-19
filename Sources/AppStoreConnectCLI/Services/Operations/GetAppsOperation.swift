@@ -42,15 +42,10 @@ struct GetAppsOperation: APIOperation {
                     throw GetAppIdsError.couldntFindAnyAppsMatching(bundleIds: bundleIds)
                 }
 
-                let responseBundleIds = Set(response.data.compactMap { $0.attributes?.bundleId })
-                let bundleIds = Set(bundleIds)
-
-                guard responseBundleIds == bundleIds else {
-                    let nonExistentBundleIds = bundleIds.subtracting(responseBundleIds)
-                    throw GetAppIdsError.appsDoNotExist(bundleIds: Array(nonExistentBundleIds))
-                }
-
                 return response.data
+                    .filter { app in
+                        bundleIds.contains(app.attributes?.bundleId ?? "")
+                    }
             }
             .eraseToAnyPublisher()
     }
